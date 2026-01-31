@@ -26,4 +26,4 @@ export const seoConfig = {
     'document processing',
     'file converter',
   ],
-} as const
+} 
