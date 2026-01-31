@@ -1,0 +1,158 @@
+// import path from 'path'
+// import { convertWithLibreOffice } from './libreoffice.js'
+// import { imageToPdf, pdfToImage } from './imageConverter.js'
+// import { generateFilePath, getFileExtension } from '../utils/fileUtils.js'
+// import { config } from '../config/index.js'
+
+// /**
+//  * Convert Word document to PDF
+//  */
+// export async function wordToPdf(inputPath, outputPath) {
+//   return convertWithLibreOffice(inputPath, outputPath, 'pdf')
+// }
+
+// /**
+//  * Convert PDF to Word document
+//  */
+// export async function pdfToWord(inputPath, outputPath) {
+//   return convertWithLibreOffice(inputPath, outputPath, 'docx')
+// }
+
+// /**
+//  * Convert Excel to PDF
+//  */
+// export async function excelToPdf(inputPath, outputPath) {
+//   return convertWithLibreOffice(inputPath, outputPath, 'pdf')
+// }
+
+// /**
+//  * Convert PDF to Excel
+//  */
+// export async function pdfToExcel(inputPath, outputPath) {
+//   return convertWithLibreOffice(inputPath, outputPath, 'xlsx')
+// }
+
+// /**
+//  * Convert PowerPoint to PDF
+//  */
+// export async function pptToPdf(inputPath, outputPath) {
+//   return convertWithLibreOffice(inputPath, outputPath, 'pdf')
+// }
+
+// /**
+//  * Convert PDF to PowerPoint
+//  */
+// export async function pdfToPpt(inputPath, outputPath) {
+//   return convertWithLibreOffice(inputPath, outputPath, 'pptx')
+// }
+
+// /**
+//  * Convert image to PDF
+//  */
+// export async function imageToPdfConverter(inputPath, outputPath) {
+//   return imageToPdf(inputPath, outputPath)
+// }
+
+// /**
+//  * Convert PDF to image
+//  */
+// export async function pdfToImageConverter(inputPath, outputPath) {
+//   const ext = path.extname(outputPath).slice(1) || 'png'
+//   const outputDir = path.dirname(outputPath)
+//   return pdfToImage(inputPath, outputDir, ext)
+// }
+
+// /**
+//  * Main conversion router
+//  */
+// export async function convertFile(inputPath, conversionType) {
+//   // Normalize extension
+//   const inputExt = getFileExtension(inputPath).toLowerCase()
+
+//   // Generate output path
+//   const outputPath = generateFilePath(
+//     config.tmpOutputDir,
+//     `converted_${Date.now()}.${getOutputExtension(conversionType)}`
+//   )
+
+//   switch (conversionType) {
+//     case 'word-to-pdf':
+//       if (!['.doc', '.docx'].includes(inputExt)) {
+//         throw new Error('Invalid file type. Expected .doc or .docx')
+//       }
+//       await wordToPdf(inputPath, outputPath)
+//       break
+
+//     case 'pdf-to-word':
+//       if (inputExt !== '.pdf') {
+//         throw new Error('Invalid file type. Expected .pdf')
+//       }
+//       await pdfToWord(inputPath, outputPath)
+//       break
+
+//     case 'excel-to-pdf':
+//       if (!['.xls', '.xlsx'].includes(inputExt)) {
+//         throw new Error('Invalid file type. Expected .xls or .xlsx')
+//       }
+//       await excelToPdf(inputPath, outputPath)
+//       break
+
+//     case 'pdf-to-excel':
+//       if (inputExt !== '.pdf') {
+//         throw new Error('Invalid file type. Expected .pdf')
+//       }
+//       await pdfToExcel(inputPath, outputPath)
+//       break
+
+//     case 'ppt-to-pdf':
+//       if (!['.ppt', '.pptx'].includes(inputExt)) {
+//         throw new Error('Invalid file type. Expected .ppt or .pptx')
+//       }
+//       await pptToPdf(inputPath, outputPath)
+//       break
+
+//     case 'pdf-to-ppt':
+//       if (inputExt !== '.pdf') {
+//         throw new Error('Invalid file type. Expected .pdf')
+//       }
+//       await pdfToPpt(inputPath, outputPath)
+//       break
+
+//     case 'image-to-pdf':
+//       if (!['.jpg', '.jpeg', '.png'].includes(inputExt)) {
+//         throw new Error('Invalid file type. Expected .jpg, .jpeg, or .png')
+//       }
+//       await imageToPdfConverter(inputPath, outputPath)
+//       break
+
+//     case 'pdf-to-image':
+//       if (inputExt !== '.pdf') {
+//         throw new Error('Invalid file type. Expected .pdf')
+//       }
+//       await pdfToImageConverter(inputPath, outputPath)
+//       break
+
+//     default:
+//       throw new Error(`Unsupported conversion type: ${conversionType}`)
+//   }
+
+//   return outputPath
+// }
+
+// /**
+//  * Get output file extension based on conversion type
+//  */
+// function getOutputExtension(conversionType) {
+//   const extensionMap = {
+//     'word-to-pdf': 'pdf',
+//     'pdf-to-word': 'docx',
+//     'excel-to-pdf': 'pdf',
+//     'pdf-to-excel': 'xlsx',
+//     'ppt-to-pdf': 'pdf',
+//     'pdf-to-ppt': 'pptx',
+//     'image-to-pdf': 'pdf',
+//     'pdf-to-image': 'png', // fixed: always convert PDF to PNG by default
+//   }
+
+//   return extensionMap[conversionType] || 'pdf'
+// }
