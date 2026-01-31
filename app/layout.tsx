@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     template: seoConfig.titleTemplate,
   },
   description: seoConfig.defaultDescription,
-  keywords: seoConfig.keywords,
+  keywords: [...seoConfig.keywords], // ✅ spread to convert readonly to mutable
   authors: [{ name: siteConfig.author }],
   creator: siteConfig.author,
   publisher: siteConfig.name,
@@ -62,9 +62,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Header />
-        <main className="min-h-screen">
-          {children}
-        </main>
+        <main className="min-h-screen">{children}</main>
         <Footer />
       </body>
     </html>
