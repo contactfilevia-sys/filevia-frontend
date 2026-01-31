@@ -27,34 +27,27 @@ export default function ServicesMenu({ onLinkClick }: ServicesMenuProps) {
     window.addEventListener('resize', checkDesktop)
     return () => {
       window.removeEventListener('resize', checkDesktop)
-      // Cleanup timeout on unmount
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
-      }
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
     }
   }, [])
 
-  // Close menu when clicking outside (only for mobile/click mode)
+  // Close menu when clicking outside (mobile only)
   useEffect(() => {
     if (!isDesktop && isOpen) {
       const handleClickOutside = (event: MouseEvent) => {
         if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-          setIsClosing(true)
-          setIsOpen(false)
+          handleLinkClick()
         }
       }
       document.addEventListener('mousedown', handleClickOutside)
       return () => document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [isOpen, isDesktop])
-  
+
   // Reset closing state when menu is closed
   useEffect(() => {
     if (!isOpen) {
-      // Small delay to ensure animation completes, then reset closing state
-      const timer = setTimeout(() => {
-        setIsClosing(false)
-      }, 200)
+      const timer = setTimeout(() => setIsClosing(false), 200)
       return () => clearTimeout(timer)
     }
   }, [isOpen])
@@ -62,26 +55,21 @@ export default function ServicesMenu({ onLinkClick }: ServicesMenuProps) {
   // Close menu on escape key
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && isOpen) {
-        setIsClosing(true)
-        setIsOpen(false)
-      }
+      if (event.key === 'Escape' && isOpen) handleLinkClick()
     }
     document.addEventListener('keydown', handleEscape)
     return () => document.removeEventListener('keydown', handleEscape)
   }, [isOpen])
 
-  const activeServices = servicesConfig.filter((s) => s.status === 'active')
-  const comingSoonServices = servicesConfig.filter((s) => s.status === 'coming-soon')
+  const activeServices = servicesConfig.filter(s => s.status === 'active')
+  const comingSoonServices = servicesConfig.filter(s => s.status === 'coming-soon')
 
   const getIcon = (iconName: string) => {
-    const IconComponent = (LucideIcons as any)[iconName] || LucideIcons.FileText
-    return IconComponent
+    return (LucideIcons as any)[iconName] || FileText
   }
 
   const handleMouseEnter = () => {
     if (isDesktop) {
-      // Clear any pending close timeout
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current)
         timeoutRef.current = null
@@ -93,10 +81,7 @@ export default function ServicesMenu({ onLinkClick }: ServicesMenuProps) {
 
   const handleMouseLeave = () => {
     if (isDesktop) {
-      // Small delay to allow moving to dropdown
-      timeoutRef.current = setTimeout(() => {
-        setIsOpen(false)
-      }, 150)
+      timeoutRef.current = setTimeout(() => setIsOpen(false), 150)
     }
   }
 
@@ -111,22 +96,15 @@ export default function ServicesMenu({ onLinkClick }: ServicesMenuProps) {
   }
 
   const handleLinkClick = (e?: React.MouseEvent) => {
-    // Set state to close menu immediately
     setIsClosing(true)
     setIsOpen(false)
-    
-    // Call parent menu close callback if provided (for mobile hamburger menu)
-    if (onLinkClick) {
-      onLinkClick()
-    }
-    
-    // On mobile, immediately hide the menu using DOM manipulation for instant visual feedback
+
+    if (onLinkClick) onLinkClick()
+
     if (!isDesktop) {
-      // Use setTimeout to ensure DOM is ready, then hide immediately
       setTimeout(() => {
         const menuElement = document.querySelector('[data-menu-content]') as HTMLElement
         const backdropElement = document.querySelector('[data-backdrop]') as HTMLElement
-        
         if (menuElement) {
           menuElement.style.display = 'none'
           menuElement.style.opacity = '0'
@@ -176,10 +154,7 @@ export default function ServicesMenu({ onLinkClick }: ServicesMenuProps) {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.05 }}
                 className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden"
-                onClick={() => {
-                  setIsClosing(true)
-                  setIsOpen(false)
-                }}
+                onClick={() => handleLinkClick()}
               />
 
               {/* Menu Content */}
@@ -197,69 +172,63 @@ export default function ServicesMenu({ onLinkClick }: ServicesMenuProps) {
                   duration: isDesktop ? 0.15 : 0.05,
                   ease: 'easeOut'
                 }}
-                className={`absolute top-full mt-2 w-full md:w-64 bg-white rounded-xl shadow-2xl border border-slate-200 z-[100] overflow-hidden ${
-                  isDesktop ? 'left-0 right-auto' : 'right-0 left-auto'
-                }`}
+                className={`absolute top-full mt-2 w-full md:w-64 bg-white rounded-xl shadow-2xl border border-slate-200 z-[100] overflow-hidden ${isDesktop ? 'left-0 right-auto' : 'right-0 left-auto'}`}
                 style={{
                   backdropFilter: 'blur(12px)',
                   WebkitBackdropFilter: 'blur(12px)',
-                  ...(isClosing && { 
-                    display: 'none',
-                    opacity: 0,
-                    pointerEvents: 'none'
-                  })
+                  ...(isClosing && { display: 'none', opacity: 0, pointerEvents: 'none' })
                 }}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
               >
-              <div className="p-3 max-h-[70vh] overflow-y-auto custom-scrollbar">
-                {/* Active Services */}
-                {activeServices.length > 0 && (
-                  <div className="mb-4">
-                    <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 px-2">
-                      Available
-                    </h3>
-                    <div className="space-y-0.5">
-                      {activeServices.map((service) => {
-                        const IconComponent = getIcon(service.icon)
-                        return (
-                          <ServiceLink
-                            key={service.slug}
-                            service={service}
-                            IconComponent={IconComponent}
-                            onClick={handleLinkClick}
-                          />
-                        )
-                      })}
+                <div className="p-3 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                  {/* Active Services */}
+                  {activeServices.length > 0 && (
+                    <div className="mb-4">
+                      <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 px-2">
+                        Available
+                      </h3>
+                      <div className="space-y-0.5">
+                        {activeServices.map(service => {
+                          const IconComponent = getIcon(service.icon)
+                          return (
+                            <ServiceLink
+                              key={service.slug}
+                              service={service}
+                              IconComponent={IconComponent}
+                              onClick={handleLinkClick}
+                            />
+                          )
+                        })}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {/* Coming Soon Services */}
-                {comingSoonServices.length > 0 && (
-                  <div>
-                    <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 px-2">
-                      Coming Soon
-                    </h3>
-                    <div className="space-y-0.5">
-                      {comingSoonServices.map((service) => {
-                        const IconComponent = getIcon(service.icon)
-                        return (
-                          <ServiceLink
-                            key={service.slug}
-                            service={service}
-                            IconComponent={IconComponent}
-                            onClick={handleLinkClick}
-                            disabled
-                          />
-                        )
-                      })}
+                  {/* Coming Soon Services */}
+                  {comingSoonServices.length > 0 && (
+                    <div>
+                      <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 px-2">
+                        Coming Soon
+                      </h3>
+                      <div className="space-y-0.5">
+                        {comingSoonServices.map(service => {
+                          const IconComponent = getIcon(service.icon)
+                          return (
+                            <ServiceLink
+                              key={service.slug}
+                              service={service}
+                              IconComponent={IconComponent}
+                              onClick={handleLinkClick}
+                              disabled
+                            />
+                          )
+                        })}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          </>
+                  )}
+                </div>
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
       )}
@@ -270,12 +239,11 @@ export default function ServicesMenu({ onLinkClick }: ServicesMenuProps) {
 interface ServiceLinkProps {
   service: ServiceConfig
   IconComponent: React.ComponentType<{ className?: string }>
-  onClick: () => void
+  onClick: (e?: React.MouseEvent) => void
   disabled?: boolean
 }
 
 function ServiceLink({ service, IconComponent, onClick, disabled = false }: ServiceLinkProps) {
-  // Map slug to vivid icon color classes
   const getIconColor = () => {
     const slug = service.slug
     if (slug.includes('word-to-pdf')) return 'text-blue-500'
@@ -323,9 +291,9 @@ function ServiceLink({ service, IconComponent, onClick, disabled = false }: Serv
 
   if (disabled) {
     return (
-      <div 
+      <div
         className="group"
-        onClick={(e) => {
+        onClick={e => {
           e.preventDefault()
           e.stopPropagation()
         }}
@@ -336,25 +304,9 @@ function ServiceLink({ service, IconComponent, onClick, disabled = false }: Serv
   }
 
   return (
-    <Link 
-      href={`/tools/${service.slug}`} 
-      onClick={(e) => {
-        // Close menu immediately on click (works for both mobile and desktop)
-        // Call onClick handler which closes the menu
-        onClick(e)
-        
-        // On mobile, ensure immediate visual feedback
-        if (typeof window !== 'undefined' && window.innerWidth < 768) {
-          // Force immediate hide
-          const menuElement = document.querySelector('[data-menu-content]') as HTMLElement
-          if (menuElement) {
-            menuElement.style.display = 'none'
-            menuElement.style.opacity = '0'
-            menuElement.style.visibility = 'hidden'
-          }
-        }
-        // Allow navigation to proceed normally - don't prevent default
-      }}
+    <Link
+      href={`/tools/${service.slug}`}
+      onClick={e => onClick(e)}
       className="group block"
     >
       {content}
