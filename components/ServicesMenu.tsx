@@ -15,6 +15,7 @@ export default function ServicesMenu({ onLinkClick }: ServicesMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [isDesktop, setIsDesktop] = useState(false)
   const [isClosing, setIsClosing] = useState(false)
+
   const menuRef = useRef<HTMLDivElement>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -23,8 +24,10 @@ export default function ServicesMenu({ onLinkClick }: ServicesMenuProps) {
     const checkDesktop = () => {
       setIsDesktop(window.innerWidth >= 768)
     }
+
     checkDesktop()
     window.addEventListener('resize', checkDesktop)
+
     return () => {
       window.removeEventListener('resize', checkDesktop)
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
@@ -39,12 +42,13 @@ export default function ServicesMenu({ onLinkClick }: ServicesMenuProps) {
           handleLinkClick()
         }
       }
+
       document.addEventListener('mousedown', handleClickOutside)
       return () => document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [isOpen, isDesktop])
 
-  // Reset closing state when menu is closed
+  // Reset closing state
   useEffect(() => {
     if (!isOpen) {
       const timer = setTimeout(() => setIsClosing(false), 200)
@@ -52,11 +56,12 @@ export default function ServicesMenu({ onLinkClick }: ServicesMenuProps) {
     }
   }, [isOpen])
 
-  // Close menu on escape key
+  // Close on ESC
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && isOpen) handleLinkClick()
     }
+
     document.addEventListener('keydown', handleEscape)
     return () => document.removeEventListener('keydown', handleEscape)
   }, [isOpen])
@@ -69,20 +74,20 @@ export default function ServicesMenu({ onLinkClick }: ServicesMenuProps) {
   }
 
   const handleMouseEnter = () => {
-    if (isDesktop) {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
-        timeoutRef.current = null
-      }
-      setIsClosing(false)
-      setIsOpen(true)
+    if (!isDesktop) return
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+      timeoutRef.current = null
     }
+
+    setIsClosing(false)
+    setIsOpen(true)
   }
 
   const handleMouseLeave = () => {
-    if (isDesktop) {
-      timeoutRef.current = setTimeout(() => setIsOpen(false), 150)
-    }
+    if (!isDesktop) return
+    timeoutRef.current = setTimeout(() => setIsOpen(false), 150)
   }
 
   const handleToggle = () => {
@@ -101,51 +106,57 @@ export default function ServicesMenu({ onLinkClick }: ServicesMenuProps) {
 
     if (onLinkClick) onLinkClick()
 
+    // Mobile: force immediate hide
     if (!isDesktop) {
       setTimeout(() => {
-        const menuElement = document.querySelector('[data-menu-content]') as HTMLElement
-        const backdropElement = document.querySelector('[data-backdrop]') as HTMLElement
-        if (menuElement) {
-          menuElement.style.display = 'none'
-          menuElement.style.opacity = '0'
-          menuElement.style.visibility = 'hidden'
-          menuElement.style.pointerEvents = 'none'
+        const menu = document.querySelector('[data-menu-content]') as HTMLElement | null
+        const backdrop = document.querySelector('[data-backdrop]') as HTMLElement | null
+
+        if (menu) {
+          menu.style.display = 'none'
+          menu.style.opacity = '0'
+          menu.style.visibility = 'hidden'
+          menu.style.pointerEvents = 'none'
         }
-        if (backdropElement) {
-          backdropElement.style.display = 'none'
-          backdropElement.style.opacity = '0'
+
+        if (backdrop) {
+          backdrop.style.display = 'none'
+          backdrop.style.opacity = '0'
         }
       }, 0)
     }
   }
 
   return (
-    <div 
-      className="relative" 
+    <div
       ref={menuRef}
+      className="relative"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Services Button */}
+      {/* Button */}
       <button
         onClick={handleToggle}
-        className="flex items-center space-x-1.5 text-slate-700 hover:text-primary-600 font-medium transition-all duration-200 px-3 py-2 rounded-lg hover:bg-white/80 active:bg-white/90 w-full md:w-auto justify-between md:justify-start relative z-10"
         aria-expanded={isOpen}
         aria-haspopup="true"
         aria-label="Services menu"
+        className="flex items-center justify-between md:justify-start space-x-1.5 px-3 py-2 w-full md:w-auto
+                   rounded-lg font-medium text-slate-700 hover:text-primary-600
+                   hover:bg-white/80 active:bg-white/90 transition-all duration-200 relative z-10"
       >
         <span className="text-sm md:text-base">Services</span>
         <ChevronDown
-          className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+          className={`w-4 h-4 transition-transform duration-200 ${
+            isOpen ? 'rotate-180' : ''
+          }`}
         />
       </button>
 
-      {/* Dropdown Menu */}
-      {(!isDesktop || isOpen) && (
-        <AnimatePresence mode="wait">
-          {isOpen && (
-            <>
-              {/* Backdrop for mobile */}
+      <AnimatePresence mode="wait">
+        {isOpen && (
+          <>
+            {/* Mobile Backdrop */}
+            {!isDesktop && (
               <motion.div
                 key="backdrop"
                 data-backdrop
@@ -153,85 +164,84 @@ export default function ServicesMenu({ onLinkClick }: ServicesMenuProps) {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.05 }}
-                className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden"
+                className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
                 onClick={() => handleLinkClick()}
               />
+            )}
 
-              {/* Menu Content */}
-              <motion.div
-                key="menu-content"
-                data-menu-content
-                initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                animate={{ 
-                  opacity: isClosing ? 0 : 1, 
-                  y: isClosing ? -10 : 0, 
-                  scale: isClosing ? 0.95 : 1 
-                }}
-                exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                transition={{ 
-                  duration: isDesktop ? 0.15 : 0.05,
-                  ease: 'easeOut'
-                }}
-                className={`absolute top-full mt-2 w-full md:w-64 bg-white rounded-xl shadow-2xl border border-slate-200 z-[100] overflow-hidden ${isDesktop ? 'left-0 right-auto' : 'right-0 left-auto'}`}
-                style={{
-                  backdropFilter: 'blur(12px)',
-                  WebkitBackdropFilter: 'blur(12px)',
-                  ...(isClosing && { display: 'none', opacity: 0, pointerEvents: 'none' })
-                }}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-              >
-                <div className="p-3 max-h-[70vh] overflow-y-auto custom-scrollbar">
-                  {/* Active Services */}
-                  {activeServices.length > 0 && (
-                    <div className="mb-4">
-                      <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 px-2">
-                        Available
-                      </h3>
-                      <div className="space-y-0.5">
-                        {activeServices.map(service => {
-                          const IconComponent = getIcon(service.icon)
-                          return (
-                            <ServiceLink
-                              key={service.slug}
-                              service={service}
-                              IconComponent={IconComponent}
-                              onClick={handleLinkClick}
-                            />
-                          )
-                        })}
-                      </div>
+            {/* Menu */}
+            <motion.div
+              key="menu"
+              data-menu-content
+              initial={{ opacity: 0, y: -10, scale: 0.95 }}
+              animate={{
+                opacity: isClosing ? 0 : 1,
+                y: isClosing ? -10 : 0,
+                scale: isClosing ? 0.95 : 1,
+              }}
+              exit={{ opacity: 0, y: -10, scale: 0.95 }}
+              transition={{
+                duration: isDesktop ? 0.15 : 0.05,
+                ease: 'easeOut',
+              }}
+              className={`absolute top-full mt-2 w-full md:w-64 bg-white border border-slate-200
+                          rounded-xl shadow-2xl z-[100] overflow-hidden
+                          ${isDesktop ? 'left-0' : 'right-0'}`}
+              style={{
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
+              }}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+            >
+              <div className="p-3 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                {activeServices.length > 0 && (
+                  <div className="mb-4">
+                    <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 px-2">
+                      Available
+                    </h3>
+                    <div className="space-y-0.5">
+                      {activeServices.map(service => {
+                        const Icon = getIcon(service.icon)
+                        return (
+                          <ServiceLink
+                            key={service.slug}
+                            service={service}
+                            IconComponent={Icon}
+                            onClick={handleLinkClick}
+                          />
+                        )
+                      })}
                     </div>
-                  )}
+                  </div>
+                )}
 
-                  {/* Coming Soon Services */}
-                  {comingSoonServices.length > 0 && (
-                    <div>
-                      <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 px-2">
-                        Coming Soon
-                      </h3>
-                      <div className="space-y-0.5">
-                        {comingSoonServices.map(service => {
-                          const IconComponent = getIcon(service.icon)
-                          return (
-                            <ServiceLink
-                              key={service.slug}
-                              service={service}
-                              IconComponent={IconComponent}
-                              onClick={handleLinkClick}
-                              disabled
-                            />
-                          )
-                        })}
-                      </div>
+                {comingSoonServices.length > 0 && (
+                  <div>
+                    <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 px-2">
+                      Coming Soon
+                    </h3>
+                    <div className="space-y-0.5">
+                      {comingSoonServices.map(service => {
+                        const Icon = getIcon(service.icon)
+                        return (
+                          <ServiceLink
+                            key={service.slug}
+                            service={service}
+                            IconComponent={Icon}
+                            onClick={handleLinkClick}
+                            disabled
+                          />
+                        )
+                      })}
                     </div>
-                  )}
-                </div>
-              </motion.div>
-            </>
-          )}
-        </AnimatePresence>
-      )}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
@@ -243,7 +253,12 @@ interface ServiceLinkProps {
   disabled?: boolean
 }
 
-function ServiceLink({ service, IconComponent, onClick, disabled = false }: ServiceLinkProps) {
+function ServiceLink({
+  service,
+  IconComponent,
+  onClick,
+  disabled = false,
+}: ServiceLinkProps) {
   const getIconColor = () => {
     const slug = service.slug
     if (slug.includes('word-to-pdf')) return 'text-blue-500'
@@ -268,20 +283,23 @@ function ServiceLink({ service, IconComponent, onClick, disabled = false }: Serv
       }`}
     >
       <div
-        className={`p-1.5 rounded-md bg-white flex-shrink-0 transition-all duration-200 border ${
+        className={`p-1.5 rounded-md bg-white flex-shrink-0 border transition-all ${
           disabled ? 'border-slate-200' : 'border-transparent group-hover:border-primary-200'
         }`}
       >
         <IconComponent
-          className={`w-3.5 h-3.5 transition-colors duration-200 ${
+          className={`w-3.5 h-3.5 ${
             disabled ? 'text-slate-400' : iconColorClass
           }`}
         />
       </div>
+
       <div className="flex-1 min-w-0 flex items-center justify-between">
-        <p className="text-sm font-medium text-slate-800 truncate">{service.name}</p>
+        <p className="text-sm font-medium text-slate-800 truncate">
+          {service.name}
+        </p>
         {disabled && (
-          <span className="text-xs font-medium text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-full ml-2 flex-shrink-0">
+          <span className="text-xs font-medium text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-full ml-2">
             Soon
           </span>
         )}
@@ -306,7 +324,7 @@ function ServiceLink({ service, IconComponent, onClick, disabled = false }: Serv
   return (
     <Link
       href={`/tools/${service.slug}`}
-      onClick={e => onClick(e)}
+      onClick={(e) => onClick(e)}
       className="group block"
     >
       {content}
