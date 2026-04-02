@@ -28,7 +28,9 @@ export default function HomePage() {
         <AdPlaceholder variant="banner" />
       </section>
 
-      <ToolsSection />
+      <section className="bg-gradient-to-r from-slate-100 to-slate-200">
+        <ToolsSection />
+      </section>
 
       <ConversionSteps steps={conversionSteps} />
 
