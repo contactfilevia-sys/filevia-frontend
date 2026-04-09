@@ -2,7 +2,7 @@
 import path from 'path'
 import fs from 'fs/promises'
 import { convertWithLibreOffice } from '../src/services/libreoffice.js'
-import { imageToPdf, pdfToImage } from '../src/services/imageconverter.js'
+import { imageToPdf, pdfToImage } from '../src/services/imageConverter.js'
 
 async function runTests() {
   try {
