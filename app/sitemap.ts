@@ -1,15 +1,32 @@
 export default function sitemap() {
+  const baseUrl = "https://filevia.org";
+
   return [
     {
-      url: "https://filevia.org/",
+      url: `${baseUrl}/`,
+      lastModified: new Date(),
+    },
+
+    // ACTIVE SEO PAGES (ONLY THESE SHOULD BE INDEXED)
+
+    {
+      url: `${baseUrl}/word-to-pdf`,
       lastModified: new Date(),
     },
     {
-      url: "https://filevia.org/pdf-to-word",
+      url: `${baseUrl}/excel-to-pdf`,
       lastModified: new Date(),
     },
     {
-      url: "https://filevia.org/jpg-to-pdf",
+      url: `${baseUrl}/ppt-to-pdf`,
+      lastModified: new Date(),
+    },
+    {
+      url: `${baseUrl}/image-to-pdf`,
+      lastModified: new Date(),
+    },
+    {
+      url: `${baseUrl}/pdf-to-image`,
       lastModified: new Date(),
     },
   ];
