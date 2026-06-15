@@ -1,33 +1,49 @@
-export default function sitemap() {
+import { MetadataRoute } from "next";
+
+export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://filevia.org";
 
   return [
     {
-      url: `${baseUrl}/`,
+      url: baseUrl,
       lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 1,
     },
 
-    // ACTIVE SEO PAGES (ONLY THESE SHOULD BE INDEXED)
+    {
+      url: `${baseUrl}/tools/word-to-pdf`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
 
     {
-      url: `${baseUrl}/word-to-pdf`,
+      url: `${baseUrl}/tools/excel-to-pdf`,
       lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.8,
     },
+
     {
-      url: `${baseUrl}/excel-to-pdf`,
+      url: `${baseUrl}/tools/ppt-to-pdf`,
       lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.8,
     },
+
     {
-      url: `${baseUrl}/ppt-to-pdf`,
+      url: `${baseUrl}/tools/image-to-pdf`,
       lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.8,
     },
+
     {
-      url: `${baseUrl}/image-to-pdf`,
+      url: `${baseUrl}/tools/pdf-to-image`,
       lastModified: new Date(),
-    },
-    {
-      url: `${baseUrl}/pdf-to-image`,
-      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.8,
     },
   ];
 }
