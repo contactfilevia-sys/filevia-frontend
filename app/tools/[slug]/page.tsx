@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { servicesConfig, getServiceBySlug } from '@/lib/services.config'
 import ToolPageContent from '@/components/ToolPageContent'
 import { siteConfig } from '@/lib/site.config'
+import { faqs } from '@/lib/data' // ✅ ADDED
 
 interface PageProps {
   params: Promise<{
@@ -67,5 +68,29 @@ export default async function ToolPage({ params }: PageProps) {
     .filter((t) => t.slug !== tool.slug)
     .slice(0, 4)
 
-  return <ToolPageContent tool={tool} relatedTools={relatedTools} />
+  return (
+    <>
+      {/* EXISTING UI (UNCHANGED) */}
+      <ToolPageContent tool={tool} relatedTools={relatedTools} />
+
+      {/* ✅ ADDED: FAQ SCHEMA FOR SEO (DO NOT MODIFY UI) */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": faqs.map((faq) => ({
+              "@type": "Question",
+              "name": faq.question,
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": faq.answer,
+              },
+            })),
+          }),
+        }}
+      />
+    </>
+  )
 }
